@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>柳蓉口試特訓</title>
+<meta name="theme-color" content="#24467A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="口試特訓">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: one-thumb phone app — content column above a fixed bottom tab bar; each drill is one card that unfolds step by step (question → speak → checkpoints → follow-up) */
+:root{
+  --bg:#F3F5F8; --surface:#FFFFFF; --fg:#18202D; --muted:#5A6577; --line:#DCE1E9;
+  --ink:#24467A; --ink-soft:#E3EAF5; --on-ink:#FFFFFF;
+  --ok:#2C6A4D; --ok-soft:#E2F1E9;
+  --trap:#A8372F; --trap-soft:#F8E5E2;
+  --amber:#8A5A00; --amber-soft:#FBEFD6;
+  --f-display:"Noto Serif TC","Songti TC","PMingLiU",serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --tabh:62px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10141B; --surface:#171D27; --fg:#E3E8F0; --muted:#9AA5B6; --line:#2A3342;
+  --ink:#93B3E8; --ink-soft:#1E2B42; --on-ink:#10141B;
+  --ok:#7CC5A0; --ok-soft:#163027; --trap:#EE8A80; --trap-soft:#3A1E1C; --amber:#E9B85A; --amber-soft:#33280F;
+  color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#10141B; --surface:#171D27; --fg:#E3E8F0; --muted:#9AA5B6; --line:#2A3342;
+  --ink:#93B3E8; --ink-soft:#1E2B42; --on-ink:#10141B;
+  --ok:#7CC5A0; --ok-soft:#163027; --trap:#EE8A80; --trap-soft:#3A1E1C; --amber:#E9B85A; --amber-soft:#33280F;
+  color-scheme:dark;}
+[hidden]{display:none!important}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.65}
+main{max-width:640px;margin:0 auto;padding-inline:16px;padding-block:18px calc(var(--tabh) + 28px + env(safe-area-inset-bottom,0px))}
+.view{display:flex;flex-direction:column;gap:14px}
+h1{font-family:var(--f-display);font-size:1.55rem;margin:0;line-height:1.3;text-wrap:balance}
+h2{font-size:1.02rem;margin:4px 0 0}
+.sub{color:var(--muted);font-size:.9rem;margin:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{font:inherit;font-size:.86rem;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:6px 13px;cursor:pointer;min-height:36px}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--on-ink)}
+.btn{font:inherit;font-weight:700;border:none;border-radius:12px;padding:13px 16px;cursor:pointer;background:var(--ink);color:var(--on-ink);min-height:48px;width:100%}
+.btn.ghost{background:var(--ink-soft);color:var(--ink)}
+.btn.line{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.warn{background:var(--trap-soft);color:var(--trap)}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.pill{font-size:.74rem;border-radius:5px;padding:1px 7px;border:1px solid var(--line);color:var(--muted)}
+.pill.hi{background:var(--trap-soft);color:var(--trap);border-color:transparent;font-weight:700}
+.pill.mid{background:var(--amber-soft);color:var(--amber);border-color:transparent}
+.pill.key{background:var(--ink);color:var(--on-ink);border-color:transparent;font-weight:700}
+.who{font-size:.82rem;color:var(--ink);font-weight:700;letter-spacing:.04em}
+.qbig{font-size:1.18rem;font-weight:700;line-height:1.6;margin:0}
+.timer{display:flex;align-items:center;gap:12px}
+.clock{font-family:var(--f-mono);font-size:2.1rem;font-variant-numeric:tabular-nums;min-width:4.2ch;color:var(--ink)}
+.clock.late{color:var(--trap)}
+.bar{height:6px;background:var(--ink-soft);border-radius:3px;overflow:hidden;flex:1}
+.bar>i{display:block;height:100%;background:var(--ink);width:100%;transition:width .25s linear}
+.bar.late>i{background:var(--trap)}
+.checks{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.checks label{display:grid;grid-template-columns:24px 1fr;gap:10px;align-items:start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer;font-size:.95rem}
+.checks input{width:20px;height:20px;margin:3px 0 0;accent-color:var(--ok)}
+.checks label:has(input:checked){background:var(--ok-soft);border-color:transparent}
+.blk h3{margin:0 0 6px;font-size:.8rem;letter-spacing:.08em}
+.blk.ok h3{color:var(--ok)} .blk.trap h3{color:var(--trap)}
+.blk ul{margin:0;padding-left:1.2em;display:grid;gap:3px;font-size:.94rem}
+.why{font-size:.88rem;color:var(--muted);margin:0}
+.score{font-family:var(--f-mono);font-size:.9rem;color:var(--muted)}
+.layer{font-family:var(--f-mono);font-size:.76rem;color:var(--muted)}
+.stat{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center}
+.stat .bar{height:8px}
+.stat .bar>i{background:var(--ok)}
+.num{font-family:var(--f-mono);font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.todo{margin:0;padding-left:1.2em;display:grid;gap:4px;font-size:.94rem}
+details.q{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+details.q summary{list-style:none;cursor:pointer;padding:12px 14px;display:grid;grid-template-columns:auto 1fr;gap:4px 10px}
+details.q summary::-webkit-details-marker{display:none}
+details.q .bd{padding:0 14px 14px;display:grid;gap:10px}
+.qid{font-family:var(--f-mono);font-size:.78rem;color:var(--ink);padding-top:3px}
+.meta{grid-column:2;display:flex;flex-wrap:wrap;gap:5px}
+.fuq{font-weight:700;font-size:.95rem;border-left:3px solid var(--ink-soft);padding-left:10px}
+input[type=search]{font:inherit;width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--fg)}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:env(safe-area-inset-bottom,0px);z-index:10}
+nav.tabs button{font:inherit;font-size:.8rem;background:none;border:none;color:var(--muted);height:var(--tabh);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer}
+nav.tabs button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
+nav.tabs button[aria-current="page"]{color:var(--ink);font-weight:700}
+.mocktop{display:flex;justify-content:space-between;align-items:center;font-family:var(--f-mono);font-size:.85rem;color:var(--muted)}
+.res{display:grid;grid-template-columns:auto 1fr auto;gap:6px 10px;align-items:center;font-size:.92rem}
+.tag{font-size:.74rem;border-radius:5px;padding:1px 7px}
+.tag.good{background:var(--ok-soft);color:var(--ok)} .tag.again{background:var(--trap-soft);color:var(--trap)}
+.confirm{display:flex;flex-direction:column;gap:8px}
+@media (prefers-reduced-motion:reduce){.bar>i{transition:none}}
+</style>
+
+<style>:root{padding-top:env(safe-area-inset-top,0px)}body{margin:0}</style>
+</head>
+<body>
+<main>
+  <section class="view" id="v-drill"></section>
+  <section class="view" id="v-mock" hidden></section>
+  <section class="view" id="v-bank" hidden></section>
+  <section class="view" id="v-prog" hidden></section>
+</main>
+<nav class="tabs" aria-label="主選單">
+  <button data-v="drill" aria-current="page"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5z"/><path d="M9 9h6M9 13h4"/></svg>單題練習</button>
+  <button data-v="mock"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="7"/><path d="M12 9v4l3 2M10 3h4"/></svg>模擬口試</button>
+  <button data-v="bank"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 10h16M4 15h10M4 20h7"/></svg>題庫</button>
+  <button data-v="prog"><svg viewBox="0 0 24 24"><path d="M5 20V12M12 20V5M19 20v-9"/></svg>進度</button>
+</nav>
+
+<script>
+const DATA={"CATS":{"J":"期刊稿","P":"海報論文","M":"碩士研究計畫","B":"管理與方法基礎","S":"個人與 AI 使用","E":"英文"},"PERS":{"sk":"懷疑派","me":"方法派","mg":"管理學派"},"Q":[{"id":"J01","c":"J","p":"sk","o":"hi","key":1,"q":"請不看稿，用三分鐘講你這篇期刊論文在問什麼、主張什麼。","why":"最直接的真偽測試：能不能用自己的話把整篇論文壓縮成三分鐘。","ok":["兩個研究問題：RQ1 正向的賦能訊息在什麼條件下，反而讓員工推論「組織打算用 GenAI 取代像我這樣的工作」；RQ2 角色威脅如何影響員工拿哪些任務測試 GenAI，進而影響得到的能力證據與評估更新","這是概念性論文（Jaakkola 2020 的 model 型），提出 12 個命題，沒有蒐集資料","兩項貢獻：(1) 正向訊息增加取代意圖歸因的條件（P1–P3）；(2) 角色威脅引導的任務抽樣（P7–P8b）","另外區分「自由裁量的用量」與「整合深度」（P10–P12）"],"trap":["講成「AI 會取代員工」的一般評論","用「研究發現」「結果顯示」：這篇沒有資料","超過三分鐘還沒講到貢獻"],"fu":[{"q":"enablement narrative 舉個例子？","ok":["Morgan Stanley 2024 新聞稿：GenAI 會議助理讓顧問更有效率，有更多時間和客戶做有意義的互動","定義：把 GenAI 說成支援員工、不是取代員工的管理溝通"]},{"q":"這兩個貢獻，哪一個是核心？","ok":["論文自己用 centrally 標示的是第二個：角色威脅引導的任務抽樣","理由：使用同一套系統的員工得出不同結論，部分是因為他們自己挑了不同的證據"]}],"src":"v11 Abstract、§1.4、§1.5"},{"id":"J02","c":"J","p":"sk","o":"hi","key":1,"q":"審稿人要你收斂貢獻。原稿主張了哪些，後來放掉了哪些？為什麼？","why":"能講出「放棄了什麼、為什麼放棄」，是獨立判斷最強的證據。這題最難靠背稿過關。","ok":["原稿三個主張：敘事反轉機制（narrative reversal）、AI 互動的角色意義建構迴圈（AI-interactive role sensemaking loop）、採用回應模式分類","R1.2 要求用比較表證明新穎性","比對近鄰後發現：調適與再評估的回饋迴圈 Beaudry & Pinsonneault (2005)、Bhattacherjee et al. (2018) 早已有；Agarwal et al. (2026) 已描述 GenAI 使用會更新使用者對自身角色的評估；defensive adoption 接近 disturbance handling 與 job-preservation behaviour","結果：遞迴迴圈不再主張是新的，只主張「威脅引導測哪些任務」；回應模式降為理想型、不算獨立貢獻；defensive adoption 只保留為描述標籤"],"trap":["只說「審稿人叫我改我就改」","講不出放掉的是哪幾個主張","把收斂說成被迫，而不是自己比對後的判斷"],"fu":[{"q":"放掉原本的主要賣點，你甘心嗎？","ok":["承認原先高估了新穎性","收斂後的主張比較站得住","連到讀書計畫：這段經驗讓她更重視貢獻聚焦"]},{"q":"Agarwal et al. (2026) 在講什麼？你讀過全文嗎？","ok":["以 sensemaking／sensegiving 分析使用者評論中的 GenAI teammates","使用經驗會回饋到期待、任務重組，以及對自己角色的再評估","誠實說明讀到什麼程度；論文 §2.3 寫明只依摘要的比較視為暫定"]}],"src":"Resp R1.2、R3.0；v1 §4；v11 Table 2"},{"id":"J03","c":"J","p":"me","o":"hi","key":1,"q":"什麼是 primary appraisal 和 secondary appraisal？審稿人說你原稿把兩者混在一起，錯在哪裡？","why":"委員會挑審稿人指出的錯誤來問，確認她真的懂修正的內容。","ok":["Lazarus & Folkman (1984)：primary 評估「這件事對我有什麼利害」；secondary 評估「我有哪些選項和資源可以應對」","兩者不是先後階段；Folkman et al. (1986, p. 993) 說兩者會 converge，共同決定","原稿的錯：把資源寫成可以把威脅「轉成」機會，或由資源「選擇」回應模式（原 P4、P8）。R1.3 指出資源多不等於威脅變機會","修正：資源只決定評估如何轉成使用；GenAI 自我效能與使用裁量權是相關的 secondary 資源"],"trap":["背得出定義，卻說不出原稿錯在哪","說出「資源高的人會把 AI 看成機會」：這正是被糾正的錯誤"],"fu":[{"q":"威脅和機會可以同時存在嗎？證據？","ok":["可以；Beaudry & Pinsonneault (p. 498)：多數 IT 事件同時含威脅與機會","Bala & Venkatesh (2016) 把兩者當不同的 primary appraisal，但資料中呈負相關，所以論文不假設兩者獨立"]},{"q":"兩種評估定義在哪些面向上？","ok":["同樣四個角色面向：就業保障、專業價值、自主性、職業身分與地位","威脅＝預期損失，機會＝預期獲益；R1.5 要求兩者結構對稱"]}],"src":"v11 §3.3；Resp R1.3–R1.5"},{"id":"J04","c":"J","p":"mg","o":"hi","q":"Beaudry 與 Pinsonneault 的模型在講什麼？你的論文怎麼用它？","why":"她在讀書計畫和期刊稿都引用這篇，委員很可能直接問。","ok":["2×2：primary appraisal（機會／威脅）× 知覺控制（高／低）→ 四種調適策略","benefits maximizing（機會＋高控制）、benefits satisficing（機會＋低控制）、disturbance handling（威脅＋高控制，包含學習、改變工作程序甚至改技術）、self-preservation（威脅＋低控制，以情緒焦點為主：淡化、選擇性注意、疏離、逃避）","調適結果會帶來再評估，可能強化也可能反轉原評估","本文把它當橋接理論，是 P6 的依據，也是四種理想型的近鄰"],"trap":["只記得威脅／機會，忘了「控制」這一軸","把 disturbance handling 講成抗拒"],"fu":[{"q":"P6 跟 self-preservation 不就是同一件事？","ok":["P6 承襲它的邏輯，但延伸兩點：把控制具體化為 GenAI 自我效能（原模型的控制涵蓋自己、工作、技術）","結果變數定為「自發測試的頻率」，用來指出誰比較少自己產生證據"]}],"src":"v11 §3.3、§4.4"},{"id":"J05","c":"J","p":"sk","o":"hi","q":"為什麼「不會取代你」這句保證，反而會讓員工更懷疑？有證據嗎？","why":"測試她知不知道自己的主張證據有限，以及怎麼限縮主張。","ok":["Grice (1975)：說話者通常不會否認一個沒人在考慮的可能，否認本身就讓「取代」成為相關話題","但 Letourneau & Gawronski (2024) 的預先註冊複製研究發現：否認的 innuendo 效果弱且不穩定，所以論文不主張保證一般都會反效果","論文主張的是條件：對管理層的信任低（善意、正直低；Mayer et al. 1995），且保證沒有可查證的承諾時，員工會問「為什麼要說這個」，把它讀成掩飾","這是本文提出的機制，沒有直接實證；限制一節有寫"],"trap":["說「研究證明保證會有反效果」","不知道 Letourneau & Gawronski 的結果其實不利於自己的說法"],"fu":[{"q":"信任高的時候呢？","ok":["論文刻意不預測；P1 只說效果隨信任上升而減弱","高信任下保證能否降低歸因，列為未來研究"]},{"q":"什麼叫 verifiable commitment？舉個製造業的例子。","ok":["具體說明哪些任務移給 GenAI、角色怎麼保護、人機怎麼分工","例：工程變更摘要由 AI 初擬，核准權仍在設計工程師；導入不作為減編理由，並有可追蹤的檢討時程","對應 P3：承諾內容不變，只改變講得多具體"]}],"src":"v11 §3.2、§4.2 P1–P3"},{"id":"J06","c":"J","p":"me","o":"hi","q":"substitution-intent attribution 跟 role threat appraisal 有什麼不同？不就是同一件事換個說法？","why":"構念區分是審稿人 R1.10 的重點，也是方法派委員最愛問的。","ok":["歸因是對「組織意圖」的信念，對象是「像我這樣的角色」；威脅是對「我自己」預期損失的評估","例：員工相信公司想用 GenAI 取代這類工作，但自己有年資、證照或專門利基，所以威脅低。這就是 P4 的調節變數 perceived role vulnerability","也不等於成本削減歸因：可以省成本而不取代，也可以基於成本以外的理由把工作移給 GenAI","題項設計：歸因題只談組織意圖，不含自身利害，例：「Management is introducing GenAI in order to have work like mine done with fewer people.」"],"trap":["舉不出例子","把兩者講成一定同時發生"],"fu":[{"q":"P4 怎麼被推翻？","ok":["歸因與威脅在實證上無法區分","或兩者關聯不隨角色脆弱性改變"]},{"q":"威脅一定要先有歸因嗎？","ok":["不必；觀察到的組織重組、同事被取代、監控增加、勞動市場變化都可以直接提高威脅","R1.11 之後刪掉了原先的不對稱主張"]}],"src":"v11 §3.2、Table 3、P4；Resp R1.10–R1.11"},{"id":"J07","c":"J","p":"sk","o":"hi","key":1,"q":"P7 說受威脅的員工會去測核心任務。可是很多人在威脅下會逃避資訊（鴕鳥效應），為什麼你預測反方向？","why":"直接攻擊論文的核心貢獻。答得好，最能證明論文是她自己的。","ok":["先講 P7 的範圍：只適用「目的在判斷可取代性、且能自選任務」的測試情境。它談的是「有測試時測什麼」","逃避由 P6 處理：低自我效能者，威脅會降低自發測試頻率。P6 管「測不測」，P7 管「測什麼」","方向理由：核心任務的結果直接關係到威脅所在乎的利益（專業價值、就業保障），周邊任務只間接相關；威脅越高，確認核心工作是否受影響越急迫","Klayman & Ha (1987) 只支持「假設會影響抽樣」，不決定方向，論文自己承認。若受威脅者只測周邊任務，就是 P7 的否證"],"trap":["硬說「人一定會去測」","不知道 P6 已經處理逃避"],"fu":[{"q":"怎麼區分是威脅讓他改測核心任務，還是只是主管派的工作變了？","ok":["要記錄每個時點員工可選的任務集合（available task set）","§5.3 寫明：沒有這項紀錄就無法區分"]},{"q":"為什麼是 t 的威脅預測 t+1 的測試？","ok":["建立時間先後，降低同時測量的反向因果","但 DSEM 也不能完全排除反向因果與隨時間變動的干擾，論文有寫"]}],"src":"v11 §4.4 P6–P7、§5.3"},{"id":"J08","c":"J","p":"me","o":"mid","q":"P8a 和 P8b 為什麼要拆成兩個命題？","why":"R1.8 要求命題單一化，確認她懂拆分的邏輯。","ok":["P8a 談輸出本身：任務組成不同，觀察到的成功／錯誤組合就不同。前提是 GenAI 在不同任務上表現不同（Dell'Acqua et al. 2026：顧問實驗中，能力範圍內的任務表現提升，範圍外的任務正確率下降）","P8b 談心理：證據要被員工採信（cue credibility）才會更新評估","拆開才能分別否證：P8a 的否證是預期表現不同的任務組卻得到相同證據；P8b 的否證是被採信、且違反先前預期的證據，在控制先前評估後仍不預測評估改變","原 P7 被拆成 P7、P8a、P8b、P9"],"trap":["把兩者混成一句","不知道 Dell'Acqua 研究的對象是管理顧問"],"fu":[{"q":"哪些 null 結果不算推翻 P8？","ok":["剛好產生相同成功／錯誤組合的任務集","可信但只是確認先前預期的證據，之後評估維持不變"]}],"src":"v11 §4.4 P8a–P8b；Resp R1.8"},{"id":"J09","c":"J","p":"me","o":"mid","q":"P9：為什麼把錯誤歸因於「穩定限制」，比歸因於「暫時限制」更能降低威脅？","why":"確認她能把一般心理學理論正確套到工具上，並知道這是延伸。","ok":["Weiner (1985)：原因的穩定性影響對未來的預期","Reich et al. (2023)：人們較願意依賴「會從錯誤中學習」的演算法","推論：認為錯誤是系統的穩定限制（它就是做不到）比較安心；認為是暫時的（下一版就好）擔心不會消失","只針對威脅中的專業價值與就業保障兩個成分；是比較性命題；不主張錯誤會降低整體威脅，因為錯誤也可能增加員工檢查輸出的責任"],"trap":["方向講反","忽略論文自己的保留：把歸因理論套在工具上是延伸"],"fu":[{"q":"這跟你的碩論有關係嗎？","ok":["有：驗收角色就是要員工檢查 AI 輸出","檢查責任本身可能帶來壓力，這是碩論讓威脅方向交給資料的原因之一"]}],"src":"v11 §3.4、P9"},{"id":"J10","c":"J","p":"mg","o":"mid","q":"用量（volume）和整合深度（depth）為什麼要分開？","why":"R1.0 認為這個區分有價值，管理學派委員會從實務角度問。","ok":["用量高不代表整合深；受威脅的人可能為了保住位子而大量使用","P10：使用有裁量、相信多用能保護角色、自我效能高，這三個條件下，威脅會增加自由裁量的用量（依據 job-preservation 研究：Shoss et al. 2023；Probst et al. 2025）","P11：機會評估增加整合深度；P12：威脅、自我效能、裁量都一樣高時，機會評估高的人深度較高","深度不等於品質：Singer et al. (2026) 發現把 AI 看成機會，反而降低努力、更順從 AI 建議","實務意涵：不要只看使用次數評估導入成效"],"trap":["說「用越多越好」"],"fu":[{"q":"檢驗 P11 時要不要控制用量？","ok":["看要估總效果還是淨效果","若機會透過增加用量而加深整合，控制用量會把 P11 預測的一部分效果拿掉"]}],"src":"v11 §4.5 P10–P12"},{"id":"J11","c":"J","p":"sk","o":"mid","q":"你的四種回應模式為什麼是理想型，不是分類？一個人可以同時屬於兩類嗎？","why":"R1.7 的核心問題，測試她懂不懂理想型的方法論意義。","ok":["四型：avoidance、compliance-only use、defensive adoption、genuine integration","理想型標出一個空間的兩極，不互斥；和 Beaudry & Pinsonneault 的四策略一樣是簡化的純粹形式","分類單位是「某人 × 某任務領域 × 某段時間」，同一個人在不同任務可以不同，也會隨時間移動","分類要同時看行為與「獨立測量的主要動機」，因為使用紀錄看不出動機；低使用不等於逃避（任務不相關不在模型範圍）"],"trap":["說成「四種人」"],"fu":[{"q":"一開始受威脅、後來用得很深的人算哪一型？","ok":["看觀察期間測到的主要動機：保護角色為主是深度防衛性採用；強化角色為主是真正整合；都不主導是混合型","起點是威脅，不能取代測量當下的動機"]}],"src":"v11 §4.5 Table 4；Resp R1.7"},{"id":"J12","c":"J","p":"me","o":"hi","key":1,"q":"你的命題要怎麼檢驗？挑一組講研究設計。","why":"概念論文最常被問的問題。也會自然接到碩論的追問。","ok":["P1–P3：情境實驗。操弄有無保證、用詞（效率 vs 發展）、承諾具體程度（實質內容不變）；測量或操弄信任與裁員歷史","P4–P5：跨越導入期的追蹤調查（panel）","P6–P9：固定時窗紀錄（包含沒有測試的時段）＋每次使用的事件紀錄：前後評估、可選任務、選了哪個任務與目的、prompt、專家評的輸出品質、注意到什麼、可信度與錯誤歸因","分析：DSEM 或多層次歷程模型，分開個人內與個人間變異","注意：隱藏使用（Reif et al. 2025）、共同方法變異、從使用痕跡推論動機的困難"],"trap":["說「發問卷就好」"],"fu":[{"q":"你說 P1 可以用情境實驗驗，那碩論為什麼不直接驗 P1？","ok":["要有自己的理由：碩論選的是組織可以設計的變數（驗收角色），貼近自己的工程文件場域，可行性高","它延伸的是評估的前因，邏輯接近 P5（組織作為影響機會評估）","P1 可以列為和指導老師討論的備案。千萬不要說「沒想過」"]},{"q":"誰願意讓你記錄每一次 AI 使用？倫理怎麼處理？","ok":["論文限制段已寫：細緻紀錄有倫理與隱私問題，知道被記錄也會改變行為","知情同意、匿名、只蒐集必要資料"]}],"src":"v11 §5.3、§5.5"},{"id":"J13","c":"J","p":"me","o":"mid","q":"你說「精確估計的虛無結果」才算否證，單一不顯著不算。這樣是不是讓命題很難被推翻？","why":"方法派委員會挑論文裡的方法論立場來考。","ok":["不顯著可能只是檢定力不足；沒有證據不等於證明沒有效果","所以否證的定義是：在有能力偵測的設計下，出現反向的穩健效果，或信賴區間很窄、集中在零附近的虛無結果","這是讓命題「可以被推翻」的標準；每個命題後都寫了 Against Px","加分：可提等價檢定（equivalence test）或預先註冊"],"trap":["答不出為什麼不顯著不等於沒有效果"],"fu":[],"src":"v11 §2.5"},{"id":"J14","c":"J","p":"mg","o":"mid","q":"什麼是 sensemaking 和 sensegiving？跟你的論文有什麼關係？","why":"論文的 process theory，管理學派委員的基本檢查。","ok":["Weick (1995)：人在模糊環境中擷取線索，建構「說得通」但不一定正確的解釋","Sensegiving（Gioia & Chittipeddi 1991）：試圖影響他人的意義建構，導向偏好的組織現實定義；賦能敘事就是一種 sensegiving","Weick (1988) 的 enacted sensemaking：行動會產生自己要解讀的環境。員工自己選的測試，產生自己要解讀的證據，這是任務抽樣機制的理論根"],"trap":["只會唸英文名詞"],"fu":[{"q":"Orlikowski & Gash 的 technological frames 是什麼？","ok":["組織內不同群體對技術有不同的假設與期待","框架不一致會影響導入結果；本文前提是管理者和員工的框架可能不同"]},{"q":"Sonenshein (2010) 說了什麼？","ok":["管理者策略性模糊的變革敘事，被員工各自補完成擁護、接受或抵抗的敘事"]}],"src":"v11 §2.2、§3.1、§3.4"},{"id":"J15","c":"J","p":"mg","o":"low","q":"HR attribution 是什麼？你怎麼把它用到 AI 上？","why":"P1–P5 的理論基礎。","ok":["Nishii et al. (2008)：員工會推論管理者採取某項 HR 措施的動機（提升品質與員工福祉 vs 降成本與控制員工），不同歸因帶來不同態度","本文把歸因從 HR 措施延伸到「員工可以自己測試的技術」的管理敘事","Koch-Bayram & Kaibel (2024) 研究的是應徵者與甄選演算法，只作類比"],"trap":[],"fu":[],"src":"v11 §3.2"},{"id":"J16","c":"J","p":"sk","o":"hi","key":1,"q":"審稿意見裡，你最不同意哪一條？","why":"「全部同意」聽起來像沒有自己的判斷。委員想看她能不能有理由地堅持。","ok":["最好的例子是 R1.4：審稿人建議用威脅×機會的組合預測不同回應；她只寫了一個組合預測（P12），沒有把每個組合對應到特定回應","理由：組合描述的是評估狀態，實際回應還取決於資源、強制規定與任務相關性","次要例子：R1.6 建議互惠模型，她用「測試是使用的一種 episode」處理，而不是把整個模型改成雙向"],"trap":["說不出任何一條","批評審稿人"],"fu":[{"q":"如果第二輪審稿人堅持要你把每個組合都對應到回應，你怎麼辦？","ok":["說明理由，並提出替代方案（例如在討論中把可檢驗的組合列為未來研究）","不硬拗，也不全盤照收"]}],"src":"Resp R1.4、R1.6"},{"id":"J17","c":"J","p":"me","o":"mid","q":"概念性論文有哪幾種？你屬於哪一種？你的方法程序是什麼？","why":"R1.1 與 A.10 都要求交代概念研究方法。","ok":["Jaakkola (2020) 四種：theory synthesis、theory adaptation、typology、model","本文是 model 型：說明構念之間的關係並寫成命題；依「設計可以組合」，納入理想型描述結果","三步程序：有針對性（非系統性）的文獻更新、近鄰比較（Table 2）、命題稽核（每個命題寫明預測變數、結果、方向、調節或範圍條件、分析層次、階段與否證結果）"],"trap":[],"fu":[{"q":"非系統性搜尋，不怕漏掉文獻嗎？","ok":["承認有風險，限制段有寫","用近鄰比較降低風險；只依摘要的比較視為暫定"]}],"src":"v11 §2；Resp R1.1、A.10"},{"id":"J18","c":"J","p":"sk","o":"low","q":"題目為什麼改？字數為什麼砍？","why":"細節題，用來確認她親自參與修訂。","ok":["原題 Recursive Sensemaking and Modes of Adoption Response… 改為 How Employees' Role Appraisals Shape the Testing and Use of Generative AI","理由：可發現性（A.4），以及遞迴和回應模式已不是主要貢獻","主文約 12,750 字砍到約 9,930 字（R3.1 嫌太長太密）","刪掉或縮成一句的觀點：protection motivation theory、Pirolli & Card、批判論述分析、CASA 與 MAIN 模型（A.7）"],"trap":[],"fu":[],"src":"Resp A.4、A.7、R3.1"},{"id":"J19","c":"J","p":"mg","o":"mid","q":"如果你是製造業總經理，明天要導入 GenAI，依你的論文會怎麼做？","why":"管理學派委員確認研究和實務接得上。","ok":["保證要搭配可查證的承諾，說清楚哪些任務會改變、角色怎麼保護（P1、P3）","有過效率裁員歷史的公司，避免只用效率語言（P2）","讓員工參與導入決策（P5）","提供多樣任務的測試機會，公開討論結果，幫員工判斷錯誤是穩定還是暫時（P7–P9）","不要只看使用次數（P10–P12）","強調這些是實務假設，還沒驗證；最好帶一個自己公司的具體場景"],"trap":["講成已證實的處方"],"fu":[{"q":"你們公司導入過 AI 嗎？員工反應如何？","ok":["用真實觀察","分清楚個人觀察與研究結論"]}],"src":"v11 §5.4、Table 5"},{"id":"J20","c":"J","p":"sk","o":"mid","q":"為什麼投 Cogent Business & Management？你知道這本期刊的性質嗎？","why":"有些委員會在意期刊層級與開放取用模式，想確認她不是盲投。","ok":["說出選擇理由（範疇涵蓋管理、接受概念性論文等）","口試前查清楚：出版社（Taylor & Francis）、是否開放取用與文章處理費（APC）、收錄在哪些資料庫","依口試當天的最新狀態如實回答：10 月 6 日送出修訂稿，編輯部技術檢查要求補正題目、摘要、關鍵字欄位與資料可得性聲明，補正後重新上傳；尚未接受"],"trap":["說成「已發表」","被問到 APC 才第一次想"],"fu":[],"src":"備審 A4–A5"},{"id":"P01","c":"P","p":"mg","o":"mid","q":"用一分鐘講你的海報論文。","why":"確認第二篇產出也是她的。","ok":["問題：為什麼有休閒需求卻沒參與（需求與參與的落差）","從「限制」轉向「門檻跨越」歷程","金錢、時間、心理、資訊四維門檻","兩個機制：補償效應（跨形式替代）、瀑布效應（受資訊調節的序列中介）","五項命題；概念研究，尚未驗證"],"trap":["說成實證發現"],"fu":[{"q":"限制和門檻到底差在哪？","ok":["限制描述障礙「存在」：靜態、分類式","門檻描述障礙「生效」：在什麼條件、對誰、什麼時候阻斷轉化；動態、程度式、因人而異","協商是降低或繞過門檻的行動，門檻是協商要跨越的對象"]}],"src":"海報 壹、參之一"},{"id":"P02","c":"P","p":"me","o":"mid","q":"為什麼整體參與門檻是形成性（formative）構念，不是反映性（reflective）？","why":"海報裡技術性最高的主張，方法派委員一看就會問。","ok":["反映性：構念造成指標，指標應同向共變、可互換；形成性：指標組成構念，不要求共變，拿掉一個就改變構念意義","四維是各自的成因，不是同一潛在變數的可互換指標","二階模型：各維度內的題項是反映性，四維形成性組成整體門檻","所以整體門檻不能用 Cronbach's α 檢驗，要看指標權重、VIF 共線性、與外部準則的關聯、MIMIC 或冗餘分析；Kono et al. (2020) 用驗證性四元組分析發現部分構念較適合形成性模型"],"trap":["說反兩者的因果方向"],"fu":[{"q":"形成性構念有什麼缺點？","ok":["模型識別需要外部變項（如 MIMIC）","權重會隨情境改變，跨研究比較較難","能說出一點即可"]}],"src":"海報 參之三、陸"},{"id":"P03","c":"P","p":"sk","o":"mid","q":"瀑布效應的路徑是什麼？怎麼驗證？","why":"海報的主打機制，委員會要她把隱喻講成可檢驗的模型。","ok":["補貼降低金錢門檻 T1 → 心理帳戶（Thaler 1985）加損失趨避（Kahneman & Tversky 1979）產生「不用就浪費」 → 心理門檻 T3 下降（啟動）→ 主動挪時間（T2）、找資訊（T4）→ 參與","序列中介，且受資訊觸達精準度調節（moderated mediation）；依據 Fogg (2009) 動機、能力、觸發","不一定從 T1 開始","驗證：序列中介模型；自然實驗或準實驗"],"trap":["只會說「推倒的門檻會連鎖」這句標語"],"fu":[{"q":"國旅補助、振興券可以拿來驗嗎？","ok":["可以當自然實驗場景","要處理選擇偏誤與同期其他變化"]}],"src":"海報 肆之四、命題五"},{"id":"P04","c":"P","p":"sk","o":"low","q":"命題三用了自我耗竭（ego depletion）。你知道這個理論有再現性問題嗎？","why":"考她能不能誠實面對自己引用文獻的弱點。","ok":["知道：Hagger et al. (2016) 多實驗室註冊複製報告發現效果接近零","命題三不只靠它，同時有資源保存理論（Hobfoll 1989）與行動無力感的論證","可以承認：若重寫，會降低對自我耗竭的依賴"],"trap":["堅持自我耗竭是定論","完全不知道這個爭議"],"fu":[],"src":"海報 命題三"},{"id":"P05","c":"P","p":"mg","o":"hi","q":"休閒門檻和 AI 角色評估差很多，你的研究興趣是不是很分散？","why":"委員想知道她能不能聚焦，還是看到什麼寫什麼。","ok":["共同的問題：人怎麼解讀外在條件與訊號，以及意願為什麼沒有變成行為","同樣的方法訓練：整合文獻、界定構念、寫出可推翻的命題","碩士階段聚焦在 AI 與工作角色；休閒那篇是學理論建構的起點","不要硬說兩者是一條直線"],"trap":["牽強地說兩篇其實是同一個主題"],"fu":[],"src":"備審 02、03"},{"id":"P06","c":"P","p":"mg","o":"low","q":"Crawford 的休閒限制階層模型是什麼？你的模型跟它哪裡不同？","why":"海報理論基礎的基本題。","ok":["三類限制：個人內在、人際、結構","Crawford, Jackson & Godbey (1991) 主張依序遭遇","她的主張：四維平行並存、可以跨維度連動，介入點不必按固定順序","限制協商：Jackson et al. (1993)；Hubbard & Mannell (2001) 實證支持「限制—效果—緩解」模型"],"trap":[],"fu":[],"src":"海報 貳之一、伍之一"},{"id":"M01","c":"M","p":"me","o":"hi","key":1,"q":"為什麼用情境實驗，不直接到工廠發問卷？","why":"研究計畫的方法核心。","ok":["要比較的是「角色設計」的效果","問卷調查裡，誰被分到哪種角色不是隨機的（能力、主管、部門都混在一起），無法排除選擇偏誤","隨機分派讓兩組在其他條件上平均相同，才能做因果推論","代價是外部效度：情境評估不等於實際行為（計畫自己寫了），後續可做田野研究"],"trap":["說「因為比較方便」"],"fu":[{"q":"操弄檢核（manipulation check）怎麼做？","ok":["問受試者是否感受到「可修正或否決」與「依清單核對」的差異，例如知覺判斷空間、決策自主（可參考 WDQ 的決策自主題項）","前測先確認情境清楚","加注意力檢核題"]},{"q":"「可修正或否決」同時包含判斷、修正權、否決權，你分得開嗎？","ok":["分不開，計畫自己承認比較的是整體設計","理由：先確認整體差異存在，之後再拆解，例如 2×2（判斷空間 × 否決權）","樣本數也不夠同時做更多組"]}],"src":"備審 04、研究構想"},{"id":"M02","c":"M","p":"me","o":"hi","key":1,"q":"150–200 份樣本怎麼來的？檢定力分析假設的效果量是多少？","why":"計畫寫了「依檢定力分析決定」，委員一定會追問數字。","ok":["兩組獨立樣本、雙尾 α = .05、檢定力 .80","d = 0.5 時每組約 64 人（共約 128）；d = 0.4 時每組約 100 人（共約 200）","所以 150–200 份大約能偵測 d ≈ 0.40–0.46 的中等偏小效果","效果量依據：相關情境實驗文獻或前測結果","兩個依變數分開檢定時，要考慮多重比較；可用 G*Power 計算"],"trap":["說「越多越好」或「老師說差不多」","不知道效果量是什麼"],"fu":[{"q":"如果招不到 150 人怎麼辦？","ok":["擴大到相關產業工作者，透過產業公會、同業網絡或線上樣本平台","或改受試者內設計（同一人看兩種情境），但要處理順序效果與需求特徵"]}],"src":"備審 04"},{"id":"M03","c":"M","p":"me","o":"hi","q":"受試者要從哪裡招募？","why":"在職申請者最常被質疑的可行性問題。","ok":["具工程文件或製造協作經驗的工作者","管道：業界人脈、同業、在職專班同學、產業公會","說明便利樣本與滾雪球抽樣的偏誤，以及如何描述樣本特性、限制推論範圍","避免只找自己公司同事（權力關係、匿名性、利益衝突）"],"trap":["說「我們公司就有很多人」"],"fu":[],"src":"備審 04"},{"id":"M04","c":"M","p":"me","o":"hi","q":"你的假設是什麼？威脅的方向交給資料決定，那還算假設嗎？","why":"委員會覺得「容許無差異或反向」聽起來像沒有立場。","ok":["機會：預期「專業判斷型」高於「清單核對型」，因為保留了專業價值與自主","威脅：兩個競爭預測。判斷權保住專業價值，威脅較低；但判斷權伴隨責任與出錯壓力，威脅可能較高","可以寫成競爭假設，或預先註冊雙尾檢定","這是誠實面對理論的不確定，不是沒有想法"],"trap":["說「我也不知道會怎樣，看資料」"],"fu":[{"q":"「責任壓力」這個機制，你怎麼測到？","ok":["加測知覺責任（accountability）或角色負荷，作為探索性的中介或輔助變數"]}],"src":"備審 研究構想 三"},{"id":"M05","c":"M","p":"me","o":"mid","q":"題項從哪裡來？信效度怎麼檢查？","why":"她自己承認測量是弱項，委員會從這裡看她的準備程度。","ok":["改編既有量表並翻譯回譯（例如 Bala & Venkatesh 的威脅／機會評估；操弄檢核可參考 Morgeson & Humphrey 2006 的 WDQ）","四個面向分別寫威脅與機會的平行題項：同樣措辭、同樣時間範圍（呼應期刊稿 §5.3）","前測檢查語意","正式資料：Cronbach's α 或組合信度；CFA 檢查區別效度，威脅與機會是兩個構念，不合併成一個分數"],"trap":["說「自己寫題目」"],"fu":[],"src":"備審 研究構想 四；v11 §5.3"},{"id":"M06","c":"M","p":"me","o":"mid","q":"資料要怎麼分析？","why":"確認她知道基本的組間比較方法。","ok":["獨立樣本 t 檢定，或以組別為預測變數的迴歸","兩個依變數可用 MANOVA，或分開報告","控制 AI 使用經驗、年資","報告效果量（Cohen's d）與信賴區間","探索性：GenAI 自我效能的調節"],"trap":[],"fu":[{"q":"調節和中介差在哪？用你的論文舉例。","ok":["中介：X 透過 M 影響 Y，回答「為什麼」","調節：Z 改變 X 對 Y 的強度或方向，回答「什麼條件下」","例：P1 的信任是調節；P7→P8a→P8b 是中介鏈"]}],"src":"備審 研究構想 四"},{"id":"M07","c":"M","p":"mg","o":"mid","q":"你的碩論和期刊稿的哪個命題有關？","why":"委員想確認碩論是延伸，不是另起爐灶。","ok":["共用構念：同一組四面向的角色威脅與機會評估","碩論把組織可以設計的「驗收角色安排」當作評估的前因，延伸的是第一階段","邏輯最接近 P5：組織作為（參與）提升機會評估，不只是透過降低歸因","老實說它不是直接檢驗 P1–P12 的任何一個"],"trap":["硬說碩論在檢驗某個命題"],"fu":[],"src":"備審 03；v11 P5"},{"id":"M08","c":"M","p":"mg","o":"mid","q":"工作設計理論你熟嗎？","why":"研究計畫引用了 Morgeson & Humphrey，管理學派委員會順勢考 JCM。","ok":["Hackman & Oldham 工作特性模型五個核心構面：技能多樣性、任務完整性、任務重要性、自主性、回饋 → 關鍵心理狀態 → 結果","Morgeson & Humphrey (2006) 的 WDQ 擴充為任務、知識、社會、工作情境四大類","連結：專業判斷型驗收提高自主性與技能使用"],"trap":[],"fu":[],"src":"備審 研究構想 三"},{"id":"M09","c":"M","p":"sk","o":"low","q":"倫理審查送哪裡？虛構的工程變更摘要誰寫？用 AI 產生情境不會有問題嗎？","why":"細節題，確認計畫不是紙上談兵。","ok":["依學校規定的研究倫理審查程序，入學後與指導老師確認","虛構案例去除真實公司資訊","AI 協助整理情境文案時，由她與受訪者確認真實性，並在論文中揭露"],"trap":[],"fu":[],"src":"備審 04"},{"id":"M10","c":"M","p":"mg","o":"mid","q":"說說你的工作：什麼是 BOM？工程變更怎麼跑？AI 可以放在哪個環節？","why":"讓她用自己最熟的場域證明研究題目是真問題。這題是加分機會。","ok":["BOM：物料清單，包含零件、數量、層級結構","工程變更流程：提出 → 評估影響（圖面、BOM、庫存、採購、生產）→ 核准 → 發行 → 通知各部門","AI 可以整理變更摘要、比對 BOM 差異、草擬通知","指出人工驗收真正需要判斷的地方，例如在途料件怎麼處理、替代料能不能用"],"trap":["講得太籠統，像沒做過"],"fu":[],"src":"備審 01、個人簡歷 五"},{"id":"B01","c":"B","p":"mg","o":"mid","q":"TAM 和 UTAUT 是什麼？你的論文為什麼說它們是「互補」？","why":"科技管理最基本的模型，她的論文有引用。","ok":["TAM（Davis 1989）：知覺有用性、知覺易用性 → 態度與意圖 → 使用","UTAUT（Venkatesh et al. 2003）：績效期望、努力期望、社會影響、促成條件；性別、年齡、經驗、自願性為調節","互補的理由：它們解釋使用「多少」，不解釋員工如何推論導入的「意義」"],"trap":[],"fu":[],"src":"v11 §2.4"},{"id":"B02","c":"B","p":"mg","o":"mid","q":"組織變革理論你知道哪些？員工為什麼抗拒變革？","why":"管理學基礎題，用來確認程度與論文相稱。","ok":["Lewin：解凍、改變、再凍結","Kotter 八步驟（從建立急迫感開始）","抗拒來源：不確定、利益損失、不信任","連到論文：抗拒不只來自技術評價，也來自員工對管理意圖的歸因"],"trap":[],"fu":[],"src":"管理學基礎"},{"id":"B03","c":"B","p":"mg","o":"mid","q":"Mayer 的信任模型是什麼？P1 用的是哪幾個成分？為什麼？","why":"P1 的條件變數。","ok":["Mayer et al. (1995)：能力（ability）、善意（benevolence）、正直（integrity）","P1 用的是善意與正直低的情況","理由：承諾可不可信，看的是動機和言行一致，不是管理者的能力"],"trap":[],"fu":[],"src":"v11 §3.2"},{"id":"B04","c":"B","p":"mg","o":"low","q":"心理契約是什麼？跟 AI 導入有什麼關係？","why":"加分連結題。","ok":["Rousseau：員工與組織之間未明文的相互義務認知；被違反時信任下降","「不會取代你」是一種承諾，若被違反就是契約破裂"],"trap":[],"fu":[],"src":"管理學基礎"},{"id":"B05","c":"B","p":"mg","o":"low","q":"挑一個激勵理論，連到 AI 導入。","why":"確認她能把基礎理論應用在自己的題目。","ok":["期望理論（Vroom）：期望 × 工具性 × 價值","或自我效能（Bandura）連到 P6、P10","或 Herzberg 雙因子"],"trap":[],"fu":[],"src":"管理學基礎"},{"id":"B06","c":"B","p":"me","o":"hi","q":"信度和效度差在哪？內部效度和外部效度呢？","why":"方法派委員的低成本測謊題。","ok":["信度：測量的一致性與穩定性","效度：有沒有測到想測的東西","內部效度：因果推論是否成立，隨機分派可以提升","外部效度：結果能否推論到其他人、情境；情境實驗在這點較弱"],"trap":[],"fu":[],"src":"研究方法基礎"},{"id":"B07","c":"B","p":"me","o":"hi","q":"隨機抽樣和隨機分派有什麼不同？你的研究有哪一個？","why":"直接連到她的研究設計，答錯很傷。","ok":["隨機抽樣影響外部效度（樣本代表性）","隨機分派影響內部效度（因果推論）","她的研究有隨機分派，沒有隨機抽樣"],"trap":["把兩者混為一談"],"fu":[],"src":"研究方法基礎"},{"id":"B08","c":"B","p":"me","o":"mid","q":"p 值是什麼？效果量呢？第一型、第二型錯誤？","why":"統計基本功。","ok":["p 值：虛無假設為真時，觀察到這麼極端或更極端資料的機率；它不是「假設為真的機率」","效果量：差異或關聯的大小","第一型錯誤：偽陽性（α）；第二型錯誤：偽陰性（β）；檢定力 = 1 − β"],"trap":["說「p 值是假設成立的機率」"],"fu":[],"src":"研究方法基礎"},{"id":"B09","c":"B","p":"me","o":"low","q":"共同方法變異是什麼？你的研究會有這個問題嗎？","why":"她的期刊稿有提到 CMV，委員可能順手考。","ok":["同一來源、同一時間量測，造成變數間關聯被高估","程序面對策：分時點、不同來源、匿名、題目分隔；統計面：Harman 單因子（有侷限）、標記變數","加分：她的自變數是操弄的，不是自評，所以 CMV 威脅較小"],"trap":[],"fu":[],"src":"v11 §5.3"},{"id":"S01","c":"S","p":"mg","o":"hi","key":1,"q":"請用一分鐘自我介紹。","why":"第一印象。背稿腔會讓後面所有回答都被懷疑。","ok":["製造業二十多年：政豐從組裝做到小主管、冠宬籌備與營運、富豪機電設計部負責工程圖與 BOM","二技一年級班排第二","兩項研究產出，各用一句話帶過","為什麼讀碩士：想從經驗判斷走向用資料檢驗","時間控制在 60–75 秒"],"trap":["背稿腔","研究講太細","超時"],"fu":[],"src":"備審 01–02"},{"id":"S02","c":"S","p":"sk","o":"hi","key":1,"q":"你白天全職上班，一般碩士班的課多半在白天，你要怎麼上課？","why":"在職報考一般碩士班，委員一定會問。答不好會直接影響錄取。","ok":["給具體方案：公司是否同意彈性工時、調整職務或留職（口試前先確認！）","修課規劃：哪些學期課多、怎麼安排","如果實在有困難，誠實說明打算怎麼處理"],"trap":["只說「我會努力克服」"],"fu":[],"src":"備審 個人簡歷"},{"id":"S03","c":"S","p":"sk","o":"hi","key":1,"q":"AI 在你的研究和寫作中具體做了什麼？哪些是你自己判斷的？","why":"委員要確認她能不能獨立產出，這題就是在問獨立的程度。","ok":["與實際情況一致：說清楚用了哪些工具（Claude、ChatGPT/Codex）、各做了什麼（例如協助草擬或改寫段落、核對來源、排版）","她負責的部分：決定研究問題、決定接受或放棄哪些主張（例如收斂貢獻）、核對文獻、做最後決定","準備一個具體例子：AI 給了什麼建議、她為什麼不採用，或怎麼核對後才採用","若已更正期刊聲明、重畫圖一：主動說明她發現聲明前後不一致、也發現出版社不允許 AI 製圖，所以自己重畫並更正。這是研究倫理的實例"],"trap":["說「只有潤稿」，與寄給期刊的揭露不一致","說「都是 AI 寫的」","含糊帶過"],"fu":[{"q":"那這篇還算你的論文嗎？","ok":["說明作者責任：問題、判斷、取捨與對錯由她負責","這也是想讀碩士的原因：要能獨立檢驗，而不只依賴工具"]},{"q":"不用 AI，現在用中文把 P4 說給我聽。","ok":["越相信公司想用 AI 取代「像我這樣的工作」，越覺得自己會有損失","越覺得自己位置容易被取代的人，這個效果越強"]}],"src":"Resp 給編輯的信；v11 §7；T&F AI 政策"},{"id":"S04","c":"S","p":"mg","o":"mid","q":"為什麼選彰師大企管？為什麼不讀 EMBA 或在職專班？","why":"確認她要的是研究訓練。","ok":["要的是研究訓練（方法、統計、論文），不只是學位或人脈","一般碩士班有研究方法與論文要求","系上組織行為、科技管理方向與題目相符；事先看過老師的研究方向","不提任何私人關係"],"trap":[],"fu":[],"src":"備審 個人簡歷 六"},{"id":"S05","c":"S","p":"mg","o":"mid","q":"你最大的弱點是什麼？","why":"看她對自己的認識是否和資料一致。","ok":["方法與統計訓練不足（研究計畫已承認）","具體補強：入學前補基礎統計、研究倫理、英文文獻；每週整理一篇文獻對照表"],"trap":["講假弱點（例如太認真）"],"fu":[],"src":"備審 05"},{"id":"S06","c":"S","p":"mg","o":"mid","q":"畢業後想做什麼？會讀博士嗎？","why":"老師想知道投資她的報酬。","ok":["在製造業科技導入與流程改善中，兼顧效率與員工角色","持續研究發表","博士可以說「看碩士階段的研究成果再評估」；誠實，不為討好而承諾"],"trap":[],"fu":[],"src":"備審 05"},{"id":"S07","c":"S","p":"mg","o":"mid","q":"想找哪位老師指導？為什麼？","why":"確認她做過功課，研究方向接得上。","ok":["依研究方向（組織行為、科技管理、研究方法）說出一到兩位老師與理由","理由要具體到對方的研究主題","不提私人引薦"],"trap":["說「哪位都可以」"],"fu":[],"src":"彰師大企管系師資頁（口試前查）"},{"id":"S08","c":"S","p":"sk","o":"low","q":"如果這次沒有錄取，你會怎麼做？","why":"看抗壓與穩定度。","ok":["平靜回答：繼續完成期刊修訂，透過其他管道報考","不顯得自傲，也不貶低自己"],"trap":[],"fu":[],"src":"—"},{"id":"E01","c":"E","p":"sk","o":"mid","q":"Please introduce your journal paper in English, in about one minute.","why":"國際期刊單一作者，委員很可能順手確認英文。","ok":["One sentence on the question: why positive messages about GenAI can be read as signals of replacement, and why employees respond differently to the same system","Two contributions: conditions for substitution-intent attribution; role-threat-guided task sampling","Conceptual paper with twelve testable propositions, no data yet"],"trap":["逐字背誦摘要"],"fu":[],"src":"v11 Abstract"},{"id":"E02","c":"E","p":"me","o":"low","q":"What is the difference between a threat appraisal and an opportunity appraisal in your model?","why":"英文版的 J03。","ok":["Expected losses versus expected gains","Defined on the same four role domains","They are distinct and may co-occur"],"trap":[],"fu":[],"src":"v11 §3.3"},{"id":"E03","c":"E","p":"sk","o":"low","q":"In one or two sentences, what did the reviewers ask you to change?","why":"英文版的 J02。","ok":["Explain the conceptual method","Correct the use of appraisal theory","Narrow the contributions","Make the propositions testable"],"trap":[],"fu":[],"src":"Resp cover letter"}]};
+const {CATS,PERS,Q}=DATA;
+const byId=Object.fromEntries(Q.map(q=>[q.id,q]));
+const ODDS={hi:"高",mid:"中",low:"低"};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---------- progress storage (per phone) ---------- */
+const KEY="liurong-oral-v1";
+let P={};
+try{P=JSON.parse(localStorage.getItem(KEY)||"{}")||{};}catch(e){P={};}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(P));}catch(e){}}
+function record(id,score,status){
+  const r=P[id]||{n:0};r.n=(r.n||0)+1;r.score=score;r.status=status;r.t=Date.now();P[id]=r;save();
+}
+
+/* ---------- timer ---------- */
+let tick=null;
+function startTimer(el,secs,onEnd){
+  stopTimer();const clock=el.querySelector(".clock"),bar=el.querySelector(".bar"),fill=bar.querySelector("i");
+  let left=secs;const t0=Date.now();
+  const draw=()=>{const m=Math.floor(Math.abs(left)/60),s=Math.abs(left)%60;
+    clock.textContent=(left<0?"+":"")+m+":"+String(s).padStart(2,"0");
+    const late=left<=10;clock.classList.toggle("late",late);bar.classList.toggle("late",late);
+    fill.style.width=Math.max(0,left/secs*100)+"%";};
+  draw();
+  tick=setInterval(()=>{left=secs-Math.floor((Date.now()-t0)/1000);draw();
+    if(left===0){try{navigator.vibrate&&navigator.vibrate(200);}catch(e){} onEnd&&onEnd();}},250);
+}
+function stopTimer(){if(tick){clearInterval(tick);tick=null;}}
+const timerHTML=secs=>`<div class="timer"><span class="clock">${Math.floor(secs/60)}:${String(secs%60).padStart(2,"0")}</span><span class="bar"><i></i></span></div>`;
+const metaHTML=q=>`${q.key?'<span class="pill key">關鍵</span>':''}<span class="pill ${q.o}">機率 ${ODDS[q.o]}</span><span class="pill">${CATS[q.c]}</span>`;
+const list=a=>`<ul>${a.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;
+
+/* ---------- one question, step by step ----------
+   layers: 0 = main question, 1.. = follow-ups. Each layer: speak (timer) → checkpoints → next */
+function runQuestion(host,q,opts){
+  const layers=[{q:q.q,ok:q.ok,trap:q.trap,why:q.why,secs:opts.mainSecs||90}]
+    .concat((opts.withFu?(q.fu||[]):[]).map(f=>({q:f.q,ok:f.ok,trap:[],why:"",secs:60})));
+  let li=0;const tally={hit:0,total:0};
+  function layer(){
+    const L=layers[li];
+    host.innerHTML=`<div class="card">
+      <div class="row"><span class="who">${PERS[q.p]}委員${li?"追問":"提問"}</span><span class="layer">${q.id}${li?` ・追問 ${li}/${layers.length-1}`:""}</span></div>
+      ${li?"":`<div class="row">${metaHTML(q)}</div>`}
+      <p class="qbig">${esc(L.q)}</p>
+      ${timerHTML(L.secs)}
+      <div id="act"><button class="btn" id="go">開始作答，請說出聲音</button></div>
+    </div>`;
+    host.querySelector("#go").addEventListener("click",()=>{
+      startTimer(host,L.secs);
+      host.querySelector("#act").innerHTML=`<button class="btn ghost" id="done">講完了，看檢核點</button>`;
+      host.querySelector("#done").addEventListener("click",reveal);
+    });
+    if(opts.autoStart){host.querySelector("#go").click();}
+  }
+  function reveal(){
+    stopTimer();const L=layers[li];
+    const act=host.querySelector("#act");
+    act.innerHTML=`<div class="blk ok"><h3>剛剛有講到的，請打勾</h3>
+      <ul class="checks">${L.ok.map((x,i)=>`<li><label><input type="checkbox" id="ck-${q.id}-${li}-${i}"><span>${esc(x)}</span></label></li>`).join("")}</ul></div>
+      ${L.trap.length?`<div class="blk trap"><h3>地雷：有沒有踩到？</h3>${list(L.trap)}</div>`:""}
+      ${L.why?`<p class="why">委員想確認：${esc(L.why)}</p>`:""}
+      <p class="score" id="sc">講到 0 / ${L.ok.length} 點</p>
+      <button class="btn" id="next">${li<layers.length-1?"下一層追問":"完成這題"}</button>`;
+    const boxes=[...act.querySelectorAll("input")];
+    const upd=()=>{act.querySelector("#sc").textContent=`講到 ${boxes.filter(b=>b.checked).length} / ${L.ok.length} 點`;};
+    boxes.forEach(b=>b.addEventListener("change",upd));
+    act.querySelector("#next").addEventListener("click",()=>{
+      tally.hit+=boxes.filter(b=>b.checked).length;tally.total+=L.ok.length;
+      if(li<layers.length-1){li++;layer();window.scrollTo({top:0});}else finish();
+    });
+    act.scrollIntoView({behavior:"smooth",block:"start"});
+  }
+  function finish(){
+    const ratio=tally.total?tally.hit/tally.total:0;const auto=ratio>=0.7?"good":"again";
+    if(opts.onDone){opts.onDone({id:q.id,ratio,status:auto});return;}
+    host.innerHTML=`<div class="card"><p class="qbig">${q.id} 完成</p>
+      <p class="sub">這題講到 ${Math.round(ratio*100)}% 的檢核點。${auto==="good"?"已達七成，標為「掌握」。":"未滿七成，標為「再練」。"}可以自己改。</p>
+      <div class="btns"><button class="btn line" data-s="again">標為再練</button><button class="btn line" data-s="good">標為掌握</button></div>
+      <button class="btn" id="nx">下一題</button></div>`;
+    record(q.id,ratio,auto);
+    host.querySelectorAll("[data-s]").forEach(b=>b.addEventListener("click",()=>{record(q.id,ratio,b.dataset.s);P[q.id].n--;save();b.textContent="已更改";}));
+    host.querySelector("#nx").addEventListener("click",opts.onNext);
+  }
+  layer();
+}
+
+/* ---------- 單題練習 ---------- */
+const drill={cat:"all",mode:"weak",fu:true};
+function pickDrill(){
+  let pool=Q.filter(q=>drill.cat==="all"||q.c===drill.cat);
+  if(drill.mode==="key")pool=pool.filter(q=>q.key||q.o==="hi");
+  if(drill.mode==="weak"){const w=pool.filter(q=>!P[q.id]||P[q.id].status==="again");if(w.length)pool=w;}
+  // prefer least practised
+  const minN=Math.min(...pool.map(q=>(P[q.id]&&P[q.id].n)||0));
+  const fresh=pool.filter(q=>((P[q.id]&&P[q.id].n)||0)===minN);
+  return fresh[Math.floor(Math.random()*fresh.length)];
+}
+function chipRow(label,opts,cur,on){
+  return `<div class="row"><span class="sub" style="min-width:3em">${label}</span>${opts.map(([v,t])=>`<button class="chip" data-g="${label}" data-v="${v}" aria-pressed="${cur===v}">${t}</button>`).join("")}</div>`;
+}
+function viewDrill(){
+  stopTimer();const v=$("#v-drill");
+  const done=Q.filter(q=>P[q.id]&&P[q.id].status==="good").length;
+  v.innerHTML=`<header><h1>柳蓉口試特訓</h1><p class="sub">已掌握 ${done} / ${Q.length} 題。每次抽一題，先開口回答，再對照檢核點自己打勾。</p></header>
+    <div class="card">
+      ${chipRow("類別",[["all","全部"],...Object.entries(CATS)],drill.cat)}
+      ${chipRow("抽題",[["weak","優先弱點"],["key","只抽關鍵與高機率"],["any","全部隨機"]],drill.mode)}
+      ${chipRow("追問",[["on","練追問"],["off","只練主問"]],drill.fu?"on":"off")}
+      <button class="btn" id="draw">抽一題</button>
+    </div>
+    <div id="stage"></div>
+    <div class="card"><h2>口試前要先確認的事</h2><ul class="todo">
+      <li>公司是否同意調整工時或留職，白天能不能上課（S02）</li>
+      <li>期刊投稿的最新狀態，以及 AI 使用聲明是否已更正（S03、J20）</li>
+      <li>Cogent Business &amp; Management 的出版社、開放取用與收錄情形（J20）</li>
+      <li>想請哪一兩位老師指導、理由是什麼（S07）</li>
+      <li>用 G*Power 自己算一次樣本數（M02）</li></ul></div>`;
+  v.querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{
+    const g=b.dataset.g,val=b.dataset.v;
+    if(g==="類別")drill.cat=val;else if(g==="抽題")drill.mode=val;else drill.fu=val==="on";
+    v.querySelectorAll(`.chip[data-g="${g}"]`).forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+  }));
+  const draw=()=>{const q=pickDrill();const st=$("#stage");
+    runQuestion(st,q,{withFu:drill.fu,onNext:draw});st.scrollIntoView({behavior:"smooth",block:"start"});};
+  v.querySelector("#draw").addEventListener("click",draw);
+}
+
+/* ---------- 模擬口試 ---------- */
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+function buildExam(){
+  const take=new Set();const pick=ids=>{const c=ids.filter(i=>!take.has(i));const x=rnd(c.length?c:ids);take.add(x);return byId[x];};
+  const jAll=Q.filter(q=>q.c==="J").map(q=>q.id), pAll=Q.filter(q=>q.c==="P").map(q=>q.id);
+  return [
+    pick(["S01"]),
+    pick(["J01","J02","J07","J16","J03","J12"]),
+    pick([...jAll,...pAll]),
+    pick(["M01","M02","M04","M03","M07","M10"]),
+    pick(["B06","B07","B08","M05","M06","J13","P02"]),
+    pick(["S02","S03","S04","S07"])
+  ];
+}
+function viewMock(){
+  stopTimer();const v=$("#v-mock");
+  v.innerHTML=`<header><h1>模擬口試</h1><p class="sub">一場 10 分鐘：自我介紹，加上五題主問，部分題目會追問。時間到不會強制中斷，但請盡量控制在時間內。建議用手機另外錄音，練完重聽一次。</p></header>
+  <div class="card"><button class="btn" id="startMock">開始一場 10 分鐘模擬</button></div>`;
+  v.querySelector("#startMock").addEventListener("click",()=>runExam(v));
+}
+function runExam(v){
+  const exam=buildExam();let i=0;const results=[];const T0=Date.now();
+  let gclock=null;
+  const head=()=>`<div class="mocktop"><span>第 ${i+1} / ${exam.length} 題</span><span id="gclock">10:00</span></div><div id="mq"></div>`;
+  function tickGlobal(){const left=600-Math.floor((Date.now()-T0)/1000);const el=$("#gclock");if(!el)return;
+    const m=Math.floor(Math.abs(left)/60),s=Math.abs(left)%60;el.textContent=(left<0?"超時 +":"剩 ")+m+":"+String(s).padStart(2,"0");el.style.color=left<60?"var(--trap)":"";}
+  function next(){
+    if(i>=exam.length){clearInterval(gclock);return summary();}
+    const q=exam[i];v.innerHTML=head();tickGlobal();
+    const withFu=q.fu&&q.fu.length&&(q.key||Math.random()<0.6);
+    const qq=withFu?Object.assign({},q,{fu:[rnd(q.fu)]}):q;
+    runQuestion($("#mq"),qq,{withFu:!!withFu,mainSecs:q.id==="S01"?75:90,autoStart:true,onDone:r=>{results.push(r);record(q.id,r.ratio,r.status);i++;next();window.scrollTo({top:0});}});
+  }
+  function summary(){
+    stopTimer();const used=Math.floor((Date.now()-T0)/1000);
+    const avg=results.reduce((a,r)=>a+r.ratio,0)/results.length;
+    v.innerHTML=`<header><h1>這場的結果</h1><p class="sub">用時 ${Math.floor(used/60)} 分 ${used%60} 秒，平均講到 ${Math.round(avg*100)}% 的檢核點。</p></header>
+    <div class="card"><div class="res">${results.map(r=>`<span class="qid">${r.id}</span><span>${esc(byId[r.id].q)}</span><span class="tag ${r.status}">${Math.round(r.ratio*100)}%</span>`).join("")}</div></div>
+    <div class="card"><p class="sub">未滿七成的題目已標為「再練」，在「單題練習」選「優先弱點」就會先抽到。</p><button class="btn" id="again">再來一場</button></div>`;
+    v.querySelector("#again").addEventListener("click",()=>runExam(v));
+  }
+  next();gclock=setInterval(tickGlobal,500);
+}
+
+/* ---------- 題庫 ---------- */
+let bankCat="all",bankQ="";
+function viewBank(){
+  stopTimer();const v=$("#v-bank");
+  v.innerHTML=`<header><h1>題庫</h1><p class="sub">${Q.length} 題主問，點開看檢核點、地雷與追問。</p></header>
+  <input type="search" id="bq" placeholder="搜尋關鍵字，例如 P7、檢定力、Beaudry" value="${esc(bankQ)}">
+  ${chipRow("類別",[["all","全部"],...Object.entries(CATS)],bankCat)}
+  <div id="blist" class="view"></div>`;
+  const render=()=>{
+    const k=bankQ.trim().toLowerCase();
+    const out=Q.filter(q=>(bankCat==="all"||q.c===bankCat)&&(!k||JSON.stringify(q).toLowerCase().includes(k)));
+    $("#blist").innerHTML=out.map(q=>{const st=P[q.id];
+      return `<details class="q"><summary><span class="qid">${q.id}</span><strong>${esc(q.q)}</strong>
+      <span class="meta">${metaHTML(q)}${st?`<span class="tag ${st.status}">${st.status==="good"?"掌握":"再練"}</span>`:""}</span></summary>
+      <div class="bd"><p class="why">委員想確認：${esc(q.why)}</p><div class="blk ok"><h3>必答檢核點</h3>${list(q.ok)}</div>
+      ${q.trap.length?`<div class="blk trap"><h3>地雷</h3>${list(q.trap)}</div>`:""}
+      ${(q.fu||[]).map(f=>`<div class="fuq">追問：${esc(f.q)}</div><div class="blk ok">${list(f.ok)}</div>`).join("")}
+      <p class="why">出處：${esc(q.src)}</p></div></details>`;}).join("")||'<p class="sub">找不到符合的題目，換個關鍵字試試。</p>';
+  };
+  v.querySelector("#bq").addEventListener("input",e=>{bankQ=e.target.value;render();});
+  v.querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{bankCat=b.dataset.v;v.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));render();}));
+  render();
+}
+
+/* ---------- 進度 ---------- */
+function viewProg(){
+  stopTimer();const v=$("#v-prog");
+  const rows=Object.entries(CATS).map(([k,name])=>{const qs=Q.filter(q=>q.c===k);const g=qs.filter(q=>P[q.id]&&P[q.id].status==="good").length;
+    return `<span>${name}</span><span class="num">${g} / ${qs.length}</span><span class="bar" style="grid-column:1/-1"><i style="width:${g/qs.length*100}%"></i></span>`;}).join("");
+  const weak=Q.filter(q=>P[q.id]&&P[q.id].status==="again");
+  const keyLeft=Q.filter(q=>q.key&&!(P[q.id]&&P[q.id].status==="good"));
+  const total=Object.values(P).reduce((a,r)=>a+(r.n||0),0);
+  v.innerHTML=`<header><h1>進度</h1><p class="sub">累計作答 ${total} 次。進度只存在這支手機的瀏覽器裡。</p></header>
+  <div class="card"><div class="stat">${rows}</div></div>
+  <div class="card"><h2>還沒掌握的關鍵題（${keyLeft.length}）</h2>${keyLeft.length?list(keyLeft.map(q=>q.id+"　"+q.q)):'<p class="sub">關鍵題都掌握了。口試前一天再全部練一輪。</p>'}</div>
+  <div class="card"><h2>標為再練（${weak.length}）</h2>${weak.length?list(weak.map(q=>q.id+"　"+q.q)):'<p class="sub">目前沒有。</p>'}</div>
+  <div class="card" id="rs"><button class="btn warn" id="reset">清除所有練習紀錄</button></div>`;
+  v.querySelector("#reset").addEventListener("click",()=>{
+    $("#rs").innerHTML=`<div class="confirm"><p class="sub">確定要清除嗎？清除後無法復原。</p><div class="btns"><button class="btn line" id="no">取消</button><button class="btn warn" id="yes">確定清除</button></div></div>`;
+    $("#no").addEventListener("click",viewProg);
+    $("#yes").addEventListener("click",()=>{P={};save();viewProg();});
+  });
+}
+
+/* ---------- tabs ---------- */
+const VIEWS={drill:viewDrill,mock:viewMock,bank:viewBank,prog:viewProg};
+function show(name){
+  document.querySelectorAll("main .view").forEach(s=>s.hidden=s.id!=="v-"+name);
+  document.querySelectorAll("nav.tabs button").forEach(b=>{if(b.dataset.v===name)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");});
+  VIEWS[name]();window.scrollTo({top:0});
+}
+document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>show(b.dataset.v)));
+show("drill");
+
+/* ---------- offline install (GitHub Pages only) ---------- */
+try{
+  if("serviceWorker" in navigator && location.protocol==="https:" && !/claude/.test(location.hostname)){
+    const l=document.createElement("link");l.rel="manifest";l.href="manifest.webmanifest";document.head.appendChild(l);
+    const a=document.createElement("link");a.rel="apple-touch-icon";a.href="icon-192.png";document.head.appendChild(a);
+    navigator.serviceWorker.register("sw.js").catch(()=>{});
+  }
+}catch(e){}
+</script>
+
+</body>
+</html>
